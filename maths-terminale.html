@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM Mathématiques — niveau terminale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F4EE;
+    --card:#FCFBF7;
+    --ink:#16314A;
+    --ink-soft:#4A6075;
+    --muted:#8A98A6;
+    --line:#DCD8CC;
+    --blue:#16314A;
+    --accent:#5B57A6;
+    --accent-soft:#E6E4F3;
+    --green:#2E7D52;
+    --green-bg:#E4F1E8;
+    --red:#B23B3B;
+    --red-bg:#F6E3E1;
+    --formula-bg:#F1EFFA;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 20px 80px;}
+
+  header{padding:48px 0 28px; border-bottom:1px solid var(--line);}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 12px;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:34px;
+    line-height:1.12; margin:0 0 10px; letter-spacing:-.01em;
+  }
+  .sub{color:var(--ink-soft); font-size:15px; margin:0 0 18px; max-width:56ch;}
+  .meta{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft);
+    background:var(--card); border:1px solid var(--line); border-radius:999px;
+    padding:5px 12px;
+  }
+  .chip.level{color:var(--accent); border-color:var(--accent); background:var(--accent-soft);}
+
+  .progress-rail{
+    position:sticky; top:0; z-index:5; background:var(--paper);
+    padding:14px 0 12px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px;
+  }
+  .bar{flex:1; height:8px; background:var(--accent-soft); border-radius:999px; overflow:hidden;}
+  .bar>span{display:block; height:100%; width:0%; background:var(--accent); transition:width .35s ease;}
+  .bar-label{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+
+  .q-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 24px; margin-top:18px;
+  }
+  .q-num{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent);
+    font-size:13px; letter-spacing:.05em;
+  }
+  .q-text{font-weight:500; font-size:17px; margin:6px 0 0; color:var(--ink);}
+  .formula{
+    text-align:center; font-size:22px; color:var(--ink);
+    background:var(--formula-bg); border:1px solid var(--accent-soft);
+    border-radius:8px; padding:18px 16px; margin:14px 0 4px;
+    letter-spacing:.01em; overflow-x:auto;
+  }
+  .opts{display:grid; gap:9px; margin-top:14px;}
+  .opt{
+    display:flex; align-items:center; gap:12px; text-align:left;
+    font-size:16px; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); border-radius:8px;
+    padding:11px 15px; cursor:pointer; transition:border-color .15s, background .15s;
+    width:100%;
+  }
+  .opt:hover:not(.locked){border-color:var(--ink-soft);}
+  .opt .letter{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--muted);
+    width:18px; flex-shrink:0;
+  }
+  .opt.sel{border-color:var(--accent); background:var(--accent-soft);}
+  .opt.sel .letter{color:var(--accent);}
+  .opt.locked{cursor:default;}
+  .opt.good{border-color:var(--green); background:var(--green-bg); color:var(--green);}
+  .opt.good .letter{color:var(--green);}
+  .opt.bad{border-color:var(--red); background:var(--red-bg); color:var(--red);}
+  .opt.bad .letter{color:var(--red);}
+  .opt .mark{margin-left:auto; font-family:'Space Grotesk',sans-serif; font-weight:700;}
+
+  .exp{
+    font-size:14px; color:var(--ink-soft); line-height:1.6;
+    margin-top:14px; padding:12px 15px; border-radius:8px;
+    background:var(--paper); border-left:3px solid var(--line);
+  }
+  .exp b.ok{color:var(--green);} .exp b.no{color:var(--red);} .exp b.skip{color:var(--muted);}
+
+  .actions{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:26px;}
+  button.cta{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px;
+    color:#fff; background:var(--blue); border:none; border-radius:8px;
+    padding:12px 26px; cursor:pointer; transition:transform .1s, opacity .15s;
+  }
+  button.cta:hover{opacity:.92;}
+  button.cta:active{transform:scale(.98);}
+  button.ghost{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px;
+    color:var(--blue); background:transparent; border:1px solid var(--line);
+    border-radius:8px; padding:12px 22px; cursor:pointer;
+  }
+  button.ghost:hover{border-color:var(--ink-soft);}
+
+  .result{
+    background:var(--blue); color:#fff; border-radius:var(--radius);
+    padding:26px 28px; margin-top:8px; display:none;
+  }
+  .result.show{display:block;}
+  .result .grade{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:42px; line-height:1;}
+  .result .grade small{font-size:20px; font-weight:500; opacity:.7;}
+  .result .line{font-size:14px; opacity:.85; margin-top:10px; font-family:'JetBrains Mono',monospace;}
+  .result .verdict{margin-top:14px; font-size:15px; line-height:1.55;}
+
+  footer{margin-top:48px; padding-top:20px; border-top:1px solid var(--line);
+    font-size:13px; color:var(--muted); text-align:center;}
+
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+  @media (max-width:520px){ h1{font-size:27px;} .q-card{padding:18px 16px;} .formula{font-size:19px;} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important; scroll-behavior:auto;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Mathématiques · Niveau terminale</p>
+    <h1>QCM Mathématiques — niveau terminale</h1>
+    <p class="sub">Trente questions sur le programme de terminale : dérivation, limites, exponentielle et logarithme, intégrales, suites, probabilités et produit scalaire. Une réponse par question, correction détaillée et note finale.</p>
+    <div class="meta">
+      <span class="chip level">spé maths · terminale</span>
+      <span class="chip">30 questions</span>
+      <span class="chip">barème +1 / −0,25</span>
+    </div>
+  </header>
+
+  <div class="progress-rail">
+    <div class="bar"><span id="barFill"></span></div>
+    <span class="bar-label" id="barLabel">0 / 30</span>
+  </div>
+
+  <main id="quiz" aria-live="polite">
+    <h2 class="sr-only">Questionnaire de mathématiques à choix multiples</h2>
+  </main>
+
+  <div class="result" id="result" aria-live="polite">
+    <div class="grade" id="grade"></div>
+    <div class="line" id="resLine"></div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="actions">
+    <button class="cta" id="submitBtn">Voir mon score</button>
+    <button class="ghost" id="resetBtn" style="display:none;">Recommencer</button>
+  </div>
+
+  <footer>Niveau terminale — dérivation, intégration, suites, probabilités et géométrie.</footer>
+</div>
+
+<script>
+const QUESTIONS = [
+  {q:"Quelle est la dérivée de f ?", formula:"f(x) = x³", opts:["3x²","x²","3x","x⁴ / 4"], c:0, e:"La dérivée de xⁿ est n·xⁿ⁻¹, donc (x³)′ = 3x²."},
+  {q:"Quelle est la dérivée de f ?", formula:"f(x) = e²ˣ", opts:["e²ˣ","2e²ˣ","2eˣ","e²ˣ / 2"], c:1, e:"Dérivée de e^u : u′·e^u. Ici u = 2x donc u′ = 2 → 2e²ˣ."},
+  {q:"Quelle est la dérivée de f sur ]0 ; +∞[ ?", formula:"f(x) = ln(x)", opts:["1 / x","ln(x) / x","x","−1 / x²"], c:0, e:"La dérivée de ln(x) est 1/x."},
+  {q:"Quelle est la dérivée de f ?", formula:"f(x) = x · eˣ", opts:["eˣ","x · eˣ","(1 + x) · eˣ","(1 − x) · eˣ"], c:2, e:"Produit : (uv)′ = u′v + uv′ = 1·eˣ + x·eˣ = (1 + x)eˣ."},
+  {q:"Quelle est la dérivée de f ?", formula:"f(x) = (2x + 1)³", opts:["3(2x + 1)²","6(2x + 1)²","(2x + 1)²","8(2x + 1)³"], c:1, e:"Composée : (u³)′ = 3u²·u′, avec u = 2x+1 et u′ = 2 → 6(2x + 1)²."},
+  {q:"Quelle est la dérivée de f ?", formula:"f(x) = x² + 3x − 5", opts:["2x + 3","2x − 5","x² + 3","2x"], c:0, e:"On dérive terme à terme : (x²)′ = 2x, (3x)′ = 3, (−5)′ = 0 → 2x + 3."},
+  {q:"Que vaut cette limite (croissance comparée) ?", formula:"lim (x → +∞)   eˣ / x", opts:["0","1","+∞","e"], c:2, e:"L'exponentielle l'emporte sur x : eˣ/x → +∞ quand x → +∞."},
+  {q:"Que vaut cette limite ?", formula:"lim (x → +∞)   ln(x) / x", opts:["+∞","0","1","e"], c:1, e:"x l'emporte sur ln(x) : ln(x)/x → 0 quand x → +∞."},
+  {q:"Que vaut cette limite ?", formula:"lim (x → 0⁺)   x · ln(x)", opts:["0","−∞","1","+∞"], c:0, e:"Croissance comparée : x·ln(x) → 0 quand x → 0 par valeurs positives."},
+  {q:"Que vaut cette limite ?", formula:"lim (x → +∞)   (3x² + 1) / (x² − 2)", opts:["0","1","3","+∞"], c:2, e:"On compare les termes de plus haut degré : 3x² / x² = 3."},
+  {q:"Quelle est la solution de l'équation ?", formula:"eˣ = 1", opts:["x = 0","x = 1","x = e","aucune solution"], c:0, e:"eˣ = 1 ⇔ x = ln(1) = 0."},
+  {q:"Quelle est la solution de l'équation (x > 0) ?", formula:"ln(x) = 0", opts:["x = 0","x = 1","x = e","x = 10"], c:1, e:"ln(x) = 0 ⇔ x = e⁰ = 1."},
+  {q:"Que vaut cette expression ?", formula:"ln(e³)", opts:["3","e³","3e","ln(3)"], c:0, e:"ln et exp sont réciproques : ln(eˣ) = x, donc ln(e³) = 3."},
+  {q:"Que vaut cette expression ?", formula:"e^(ln 5)", opts:["ln(5)","5","e⁵","1"], c:1, e:"e^(ln x) = x, donc e^(ln 5) = 5."},
+  {q:"Quelle est la solution de l'équation ?", formula:"2ˣ = 8", opts:["x = 2","x = 3","x = 4","x = 16"], c:1, e:"8 = 2³, donc 2ˣ = 2³ ⇔ x = 3."},
+  {q:"Que vaut cette intégrale ?", formula:"∫₀¹ x² dx", opts:["1","1/3","1/2","2/3"], c:1, e:"Une primitive de x² est x³/3. [x³/3]₀¹ = 1/3 − 0 = 1/3."},
+  {q:"Que vaut cette intégrale ?", formula:"∫₁ᵉ (1 / x) dx", opts:["e","1","e − 1","0"], c:1, e:"Une primitive de 1/x est ln(x). [ln x]₁ᵉ = ln(e) − ln(1) = 1."},
+  {q:"Que vaut cette intégrale ?", formula:"∫₀¹ eˣ dx", opts:["e","e − 1","1","e + 1"], c:1, e:"Une primitive de eˣ est eˣ. [eˣ]₀¹ = e¹ − e⁰ = e − 1."},
+  {q:"Quelle est une primitive de f ?", formula:"f(x) = 2x", opts:["2","x²","x² / 2","2x²"], c:1, e:"Une primitive de 2x est x² (sa dérivée redonne bien 2x)."},
+  {q:"Quelle est une primitive de f ?", formula:"f(x) = cos(x)", opts:["−sin(x)","sin(x)","−cos(x)","cos(x)"], c:1, e:"La dérivée de sin(x) est cos(x), donc sin(x) est une primitive de cos(x)."},
+  {q:"Quelle est la limite de la suite ?", formula:"uₙ = 2ⁿ", opts:["0","1","+∞","2"], c:2, e:"Suite géométrique de raison 2 > 1 : elle tend vers +∞."},
+  {q:"Quelle est la limite de la suite ?", formula:"uₙ = (1/2)ⁿ", opts:["0","1/2","1","+∞"], c:0, e:"Raison comprise entre 0 et 1 : la suite tend vers 0."},
+  {q:"Suite arithmétique de premier terme u₀ = 3 et de raison r = 2. Que vaut u₅ ?", opts:["10","11","13","16"], c:2, e:"uₙ = u₀ + n·r = 3 + 5×2 = 13."},
+  {q:"Suite géométrique de premier terme u₀ = 1 et de raison q = 3. Que vaut u₃ ?", opts:["9","27","81","3"], c:1, e:"uₙ = u₀ × qⁿ = 1 × 3³ = 27."},
+  {q:"X suit la loi binomiale de paramètres n = 10 et p = 0,5. Que vaut l'espérance E(X) ?", opts:["10","5","2,5","0,5"], c:1, e:"Pour une loi binomiale, E(X) = n·p = 10 × 0,5 = 5."},
+  {q:"A et B sont indépendants, avec P(A) = 0,5 et P(B) = 0,4. Que vaut P(A ∩ B) ?", opts:["0,9","0,2","0,1","0,45"], c:1, e:"Événements indépendants : P(A ∩ B) = P(A) × P(B) = 0,5 × 0,4 = 0,2."},
+  {q:"On donne P(A) = 0,5 et P(A ∩ B) = 0,1. Que vaut la probabilité conditionnelle P(B | A) ?", opts:["0,1","0,2","0,5","0,05"], c:1, e:"P(B | A) = P(A ∩ B) / P(A) = 0,1 / 0,5 = 0,2."},
+  {q:"On lance un dé équilibré à 6 faces. Quelle est la probabilité d'obtenir un nombre pair ?", opts:["1/6","1/3","1/2","2/3"], c:2, e:"Faces paires : 2, 4, 6 → 3 cas sur 6, soit 1/2."},
+  {q:"Que vaut le produit scalaire u · v ?", formula:"u(1 ; 2 ; 3)     v(2 ; 0 ; 1)", opts:["5","6","0","11"], c:0, e:"u · v = 1×2 + 2×0 + 3×1 = 2 + 0 + 3 = 5."},
+  {q:"Pour quelle valeur de k les vecteurs sont-ils orthogonaux ?", formula:"u(1 ; 2)     v(2 ; k)", opts:["k = 1","k = −1","k = 0","k = 2"], c:1, e:"Orthogonaux ⇔ u · v = 0 : 1×2 + 2×k = 0 ⇔ 2 + 2k = 0 ⇔ k = −1."}
+];
+
+const state = Array(QUESTIONS.length).fill(null);
+let graded = false;
+const quiz = document.getElementById('quiz');
+const barFill = document.getElementById('barFill');
+const barLabel = document.getElementById('barLabel');
+const submitBtn = document.getElementById('submitBtn');
+const resetBtn = document.getElementById('resetBtn');
+const resultEl = document.getElementById('result');
+const N = QUESTIONS.length;
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function render(){
+  quiz.innerHTML = '<h2 class="sr-only">Questionnaire de mathématiques à choix multiples</h2>';
+  QUESTIONS.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    let html = '<div class="q-num">Question ' + (qi+1) + ' / ' + N + '</div>';
+    html += '<p class="q-text">' + esc(item.q) + '</p>';
+    if(item.formula) html += '<div class="formula">' + esc(item.formula) + '</div>';
+    html += '<div class="opts">';
+    item.opts.forEach((opt, oi) => {
+      let cls = 'opt';
+      let mark = '';
+      if(graded){
+        cls += ' locked';
+        if(oi === item.c){ cls += ' good'; mark = '<span class="mark">✓</span>'; }
+        else if(state[qi] === oi){ cls += ' bad'; mark = '<span class="mark">✗</span>'; }
+      } else if(state[qi] === oi){ cls += ' sel'; }
+      html += '<button class="' + cls + '" data-q="' + qi + '" data-o="' + oi + '">' +
+              '<span class="letter">' + String.fromCharCode(65+oi) + '</span>' +
+              '<span>' + esc(opt) + '</span>' + mark + '</button>';
+    });
+    html += '</div>';
+    if(graded){
+      const ok = state[qi] === item.c;
+      let tag = ok ? '<b class="ok">Correct.</b> '
+              : (state[qi] === null ? '<b class="skip">Non répondu.</b> ' : '<b class="no">Faux.</b> ');
+      html += '<div class="exp">' + tag + esc(item.e) + '</div>';
+    }
+    card.innerHTML = html;
+    quiz.appendChild(card);
+  });
+  if(!graded){
+    quiz.querySelectorAll('.opt').forEach(b => {
+      b.addEventListener('click', () => {
+        state[+b.dataset.q] = +b.dataset.o;
+        render(); updateBar();
+      });
+    });
+  }
+}
+
+function updateBar(){
+  const n = state.filter(x => x !== null).length;
+  barFill.style.width = (n / N * 100) + '%';
+  barLabel.textContent = n + ' / ' + N;
+}
+
+submitBtn.addEventListener('click', () => {
+  graded = true;
+  let good = 0, bad = 0;
+  state.forEach((a, i) => { if(a === null) return; a === QUESTIONS[i].c ? good++ : bad++; });
+  const pts = good - bad * 0.25;
+  const note = Math.max(0, pts / N * 20);
+  document.getElementById('grade').innerHTML = note.toFixed(1) + '<small>/20</small>';
+  document.getElementById('resLine').textContent =
+    good + ' bonnes · ' + bad + ' fausses · ' + (N - good - bad) + ' sans réponse — ' + pts.toFixed(2) + ' pts au barème';
+  let v;
+  if(note >= 16) v = "Très bon niveau — le programme de terminale est bien maîtrisé.";
+  else if(note >= 12) v = "Bon niveau. Revois les chapitres où tu as buté et le test sera serein.";
+  else if(note >= 8) v = "Les bases sont là mais à consolider. Reprends les corrections chapitre par chapitre.";
+  else v = "Il faut revoir le programme posément : commence par la dérivation et les limites, puis exponentielle, intégrales et probabilités.";
+  document.getElementById('verdict').textContent = v;
+  resultEl.classList.add('show');
+  submitBtn.style.display = 'none';
+  resetBtn.style.display = 'inline-flex';
+  render();
+  resultEl.scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+resetBtn.addEventListener('click', () => {
+  for(let i=0;i<N;i++) state[i] = null;
+  graded = false;
+  resultEl.classList.remove('show');
+  submitBtn.style.display = 'inline-flex';
+  resetBtn.style.display = 'none';
+  render(); updateBar();
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+render();
+updateBar();
+</script>
+</body>
+</html>
